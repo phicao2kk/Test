@@ -1849,10 +1849,10 @@
         showToast("✅ Đã lưu thông tin cửa hàng!", "success");
     }
 
-    function renderChart(productsData, combosData, type = 'product', limit = 5) {
-        let items = [];
-        const colors = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#ec4899', '#22c55e', '#f97316', '#64748b'];
-        
+function renderChart(productsData, combosData, type = 'product', limit = 5) {
+    let items = [];
+    const colors = ['#8b5cf6', '#10b981', '#f59e0b', '#ef4444', '#a78bfa', '#06b6d4', '#ec4899', '#22c55e', '#f97316', '#64748b'];
+
         if (type === 'product') {
             let productSales = [];
             
@@ -1951,51 +1951,51 @@
         }
         
         let container = document.getElementById('chartContainer');
-        if (items.length === 0) {
-            container.innerHTML = `<div class="text-center py-10 text-slate-400 bg-slate-50 rounded-xl"><i class="fas fa-chart-simple text-4xl mb-2 block"></i><p>📊 Chưa có dữ liệu bán hàng</p></div>`;
-            return;
-        }
+    if (items.length === 0) {
+        container.innerHTML = `<div class="text-center py-10 text-slate-400 bg-slate-800/30 rounded-xl border border-slate-700/50"><i class="fas fa-chart-simple text-4xl mb-2 block text-slate-500"></i><p>📊 Chưa có dữ liệu bán hàng</p></div>`;
+        return;
+    }
+    
+    let maxSold = Math.max(...items.map(i => i.sold));
+    let html = `<div class="space-y-3"><div class="flex justify-between text-xs text-slate-400 pb-1 border-b border-slate-700/50"><span class="w-2/5">🏆 Sản phẩm</span><span class="w-2/5 text-center">📊 Tiến độ</span><span class="w-1/5 text-right">📈 Đã bán</span></div>`;
+    
+    items.forEach((item, idx) => {
+        let percent = (item.sold / maxSold) * 100;
+        let rankIcon = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '📌'));
+        let shortName = item.name.length > 30 ? item.name.substring(0, 28) + '...' : item.name;
         
-        let maxSold = Math.max(...items.map(i => i.sold));
-        let html = `<div class="space-y-3"><div class="flex justify-between text-xs text-slate-500 pb-1 border-b"><span class="w-2/5">🏆 Sản phẩm</span><span class="w-2/5 text-center">📊 Tiến độ</span><span class="w-1/5 text-right">📈 Đã bán</span></div>`;
-        
-        items.forEach((item, idx) => {
-            let percent = (item.sold / maxSold) * 100;
-            let rankIcon = idx === 0 ? '🥇' : (idx === 1 ? '🥈' : (idx === 2 ? '🥉' : '📌'));
-            let shortName = item.name.length > 30 ? item.name.substring(0, 28) + '...' : item.name;
-            
-            html += `<div class="bg-slate-50 rounded-xl p-3 hover:shadow-md transition">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 text-center"><span class="text-lg">${rankIcon}</span></div>
-                            <div class="flex-1">
-                                <div class="flex justify-between items-center mb-1">
-                                    <span class="font-medium text-sm truncate max-w-[200px]" title="${escapeHtml(item.name)}">${escapeHtml(shortName)}</span>
-                                    <span class="text-xs font-bold text-indigo-600">${item.sold.toLocaleString()}</span>
-                                </div>
-                                <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
-                                    <div class="h-full rounded-full transition-all duration-500" style="width: ${percent}%; background: ${item.color}"></div>
-                                </div>
-                                <div class="flex justify-between text-xs text-slate-400 mt-0.5">
-                                    <span>Tiến độ bán</span>
-                                    <span>${percent.toFixed(1)}%</span>
-                                </div>
+        html += `<div class="bg-slate-800/50 rounded-xl p-3 hover:bg-slate-700/50 transition border border-slate-700/50">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 text-center"><span class="text-lg">${rankIcon}</span></div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-sm truncate max-w-[200px] text-slate-200" title="${escapeHtml(item.name)}">${escapeHtml(shortName)}</span>
+                                <span class="text-xs font-bold text-purple-400">${item.sold.toLocaleString()}</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500" style="width: ${percent}%; background: ${item.color}"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-slate-500 mt-0.5">
+                                <span>Tiến độ bán</span>
+                                <span>${percent.toFixed(1)}%</span>
                             </div>
                         </div>
-                    </div>`;
-        });
-        
-        let totalSold = items.reduce((sum, i) => sum + i.sold, 0);
-        html += `<div class="bg-indigo-50 rounded-xl p-3 mt-3 border border-indigo-200">
-                    <div class="flex justify-between items-center">
-                        <span class="text-sm font-semibold text-indigo-700"><i class="fas fa-chart-simple"></i> Tổng kết</span>
-                        <span class="text-sm font-bold text-indigo-800">${totalSold.toLocaleString()} sản phẩm</span>
                     </div>
-                    <div class="flex gap-2 mt-2 text-xs text-indigo-600">
-                        <span>🎯 Top 1: ${escapeHtml(items[0]?.name.substring(0, 25) || '—')}</span>
-                    </div>
-                </div></div>`;
-        container.innerHTML = html;
-    }
+                </div>`;
+    });
+    
+    let totalSold = items.reduce((sum, i) => sum + i.sold, 0);
+    html += `<div class="bg-purple-900/20 rounded-xl p-3 mt-3 border border-purple-500/30">
+                <div class="flex justify-between items-center">
+                    <span class="text-sm font-semibold text-purple-300"><i class="fas fa-chart-simple"></i> Tổng kết</span>
+                    <span class="text-sm font-bold text-purple-400">${totalSold.toLocaleString()} sản phẩm</span>
+                </div>
+                <div class="flex gap-2 mt-2 text-xs text-purple-300">
+                    <span>🎯 Top 1: ${escapeHtml(items[0]?.name.substring(0, 25) || '—')}</span>
+                </div>
+            </div></div>`;
+    container.innerHTML = html;
+}
 
     function updateChart() {
         currentChartType = document.getElementById('chartType').value;
